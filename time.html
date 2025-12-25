@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>成员作息对照表</title>
+  <style>
+    /* =========================
+       主题变量：默认先给“浅色”
+       深色会在 body.page-dark 覆盖
+       ========================= */
+    :root{
+      /* 页面背景 */
+      --pageBg: radial-gradient(1200px 600px at 20% 10%, #e8eef8 0%, #f5f7fb 60%);
+
+      /* 全局文字 */
+      --text: #0b1220;
+      --muted:#5b6b84;
+      --border: rgba(0,0,0,.10);
+
+      /* 卡片：按当地时间切换（日/夜/过渡） */
+      --cardDayA: rgba(255,255,255,.92);
+      --cardDayB: rgba(255,255,255,.78);
+
+      --cardNightA: rgba(240,244,252,.90);
+      --cardNightB: rgba(236,241,250,.76);
+
+      --cardTwilightA: rgba(255, 214, 102, .26);
+      --cardTwilightB: rgba(255, 214, 102, .14);
+
+      /* 对照行 */
+      --rowBg: rgba(0,0,0,.04);
+      --rowBd: rgba(0,0,0,.06);
+
+      /* 强调色 */
+      --accent:#2f62ff;
+
+      /* 状态 pill：四档 */
+      --pillAwakeBg: rgba(46, 204, 113, .14);
+      --pillAwakeBd: rgba(46, 204, 113, .38);
+      --pillAwakeTx: #1e8e52;
+
+      --pillSleepBg: rgba(167, 139, 250, .16);
+      --pillSleepBd: rgba(167, 139, 250, .42);
+      --pillSleepTx: #7c3aed;
+
+      --pillTransBg: rgba(241, 196, 15, .20);
+      --pillTransBd: rgba(241, 196, 15, .55);
+      --pillTransTx: #8a6a00;
+
+      /* 小 pill */
+      --miniPillBg: rgba(255,255,255,.45);
+      --miniPillBd: rgba(0,0,0,.10);
+
+      /* 阴影 */
+      --shadowCard: 0 12px 30px rgba(0,0,0,.12);
+      --shadowBtn: 0 6px 18px rgba(0,0,0,.08);
+    }
+
+    /* 深色主题：采用你最开始那套“深色”风格 */
+    body.page-dark{
+      --pageBg: radial-gradient(1200px 600px at 20% 10%, #17233a 0%, #0b0f17 60%);
+
+      --text: #e8eef8;
+      --muted:#93a4bd;
+      --border: rgba(255,255,255,.10);
+
+      --cardDayA: rgba(255,255,255,.04);
+      --cardDayB: rgba(255,255,255,.02);
+
+      --cardNightA: rgba(0,0,0,.28);
+      --cardNightB: rgba(255,255,255,.01);
+
+      --cardTwilightA: rgba(255, 214, 102, .14);
+      --cardTwilightB: rgba(255, 214, 102, .08);
+
+      --rowBg: rgba(0,0,0,.18);
+      --rowBd: rgba(255,255,255,.06);
+
+      --accent:#7aa2ff;
+
+      --miniPillBg: rgba(0,0,0,.16);
+      --miniPillBd: rgba(255,255,255,.08);
+
+      --shadowCard: 0 12px 32px rgba(0,0,0,.35);
+      --shadowBtn: 0 6px 18px rgba(0,0,0,.25);
+    }
+
+    /* 基础 */
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "PingFang SC","Hiragino Sans GB","Microsoft Yahei", sans-serif;
+      background: var(--pageBg);
+      color: var(--text);
+      transition: background 160ms ease, color 160ms ease;
+    }
+
+    header{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 18px 10px;
+      text-align:center;
+    }
+    h1{
+      margin:0;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: .6px;
+    }
+
+    main{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 10px 18px 14px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      box-shadow: var(--shadowCard);
+      transition: background 140ms ease;
+      backdrop-filter: blur(8px);
+    }
+    .card.day{
+      background: linear-gradient(180deg, var(--cardDayA), var(--cardDayB));
+    }
+    .card.night{
+      background: linear-gradient(180deg, var(--cardNightA), var(--cardNightB));
+    }
+    .card.twilight{
+      background: linear-gradient(180deg, var(--cardTwilightA), var(--cardTwilightB));
+    }
+
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .who{
+      min-width: 0;
+      display:flex;
+      flex-direction:column;
+      gap: 4px;
+    }
+    .nameLine{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      flex-wrap:wrap;
+      min-width:0;
+    }
+    .name{
+      font-weight: 850;
+      font-size: 16px;
+      max-width: 240px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .loc{
+      color: var(--muted);
+      font-size: 12px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 320px;
+    }
+
+    /* 主状态 pill：四档 */
+    .statusPill{
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.25);
+      color: var(--text);
+      font-weight: 750;
+      line-height: 1.1;
+      box-shadow: var(--shadowBtn);
+    }
+    .statusPill.awake{
+      background: var(--pillAwakeBg);
+      border-color: var(--pillAwakeBd);
+      color: var(--pillAwakeTx);
+    }
+    .statusPill.sleep{
+      background: var(--pillSleepBg);
+      border-color: var(--pillSleepBd);
+      color: var(--pillSleepTx);
+    }
+    .statusPill.trans{
+      background: var(--pillTransBg);
+      border-color: var(--pillTransBd);
+      color: var(--pillTransTx);
+    }
+
+    .timeBox{
+      text-align:right;
+      min-width: 170px;
+    }
+    .clock{
+      font-variant-numeric: tabular-nums;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1.12;
+    }
+    .date{
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .meta{
+      margin-top: 8px;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+    .miniPill{
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--miniPillBd);
+      background: var(--miniPillBg);
+      white-space:nowrap;
+    }
+    .miniPill strong{
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .hint{
+      color: var(--muted);
+      font-size: 13px;
+      margin: 6px 0 8px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding: 7px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--rowBd);
+      background: var(--rowBg);
+    }
+    .row .label{
+      font-size: 12.5px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .row .val{
+      font-size: 12.5px;
+      font-variant-numeric: tabular-nums;
+      opacity: .92;
+      white-space:nowrap;
+    }
+
+    footer{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 8px 18px 22px;
+      color: var(--muted);
+      font-size: 12.5px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap: 12px;
+      flex-wrap:wrap;
+    }
+    .footerLeft{
+      line-height: 1.5;
+      min-width: 260px;
+    }
+    .controls{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.55);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12.5px;
+      line-height: 1;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      box-shadow: var(--shadowBtn);
+    }
+    body.page-dark .btn{
+      background: rgba(255,255,255,.06);
+    }
+    .btn:active{ transform: translateY(1px); }
+    .btn small{ color: var(--muted); font-size: 12px; }
+
+    code{
+      background: rgba(255,255,255,.10);
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>成员作息对照表</h1>
+  </header>
+
+  <main id="cards"></main>
+
+  <footer>
+    <div class="footerLeft" id="footerText">
+      每秒刷新。卡片背景按成员当地时间切换：白天（06:00–18:00）/夜晚（18:00–次日06:00）/过渡（入睡或起床 ±1 小时）。
+      页面背景：自动模式读取浏览器 <code>prefers-color-scheme</code>。
+      <div id="statusLine" style="margin-top:6px;"></div>
+    </div>
+
+    <div class="controls">
+      <div class="btn" id="pageBgToggleBtn" title="切换页面大背景：自动 / 浅色 / 深色">
+        页面背景：<small id="pageBgModeLabel">自动</small>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* =========================
+       数据：人员 + 作息
+       ========================= */
+    const people = [
+      { id: "cn-lead", name: "队长", region: "新加坡", timeZone: "Asia/Singapore", sleep: "03:00", wake: "12:00" },
+      { id: "cn-1", name: "一号", region: "中国", timeZone: "Asia/Shanghai", sleep: "00:00", wake: "08:00" },
+      { id: "cn-2", name: "二号", region: "中国", timeZone: "Asia/Shanghai", sleep: "02:00", wake: "12:00" },
+      { id: "us-wi-3", name: "三号", region: "美国-威斯康星州", timeZone: "America/Chicago", sleep: "04:00", wake: "12:00" },
+      { id: "us-ma-4", name: "四号", region: "美国-麻塞诸塞州", timeZone: "America/New_York", sleep: "04:00", wake: "12:00" },
+      { id: "cn-rookie", name: "新兵", region: "中国香港", timeZone: "Asia/Hong_Kong", sleep: "03:00", wake: "12:00" },
+    ];
+
+    const cardsEl = document.getElementById("cards");
+    const statusLineEl = document.getElementById("statusLine");
+
+    /* =========================
+       页面大背景模式：
+       auto = prefers-color-scheme
+       light/dark = 强制
+       ========================= */
+    const PAGE_BG_KEY = "team_time_page_bg_mode";
+    const pageBgToggleBtn = document.getElementById("pageBgToggleBtn");
+    const pageBgModeLabel = document.getElementById("pageBgModeLabel");
+    const pageBgModes = ["auto", "light", "dark"];
+    const pageBgText = { auto: "自动", light: "浅色", dark: "深色" };
+
+    let pageBgMode = (localStorage.getItem(PAGE_BG_KEY) || "auto");
+    if (!pageBgModes.includes(pageBgMode)) pageBgMode = "auto";
+    pageBgModeLabel.textContent = pageBgText[pageBgMode];
+
+    const mediaDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+
+    function applyPageBg() {
+      let mode = pageBgMode;
+      if (mode === "auto") {
+        mode = (mediaDark && mediaDark.matches) ? "dark" : "light";
+      }
+      document.body.classList.toggle("page-dark", mode === "dark");
+      // 浅色模式不需要 class（但这里也可以显式处理）
+      document.body.classList.toggle("page-light", mode === "light");
+    }
+
+    if (mediaDark && mediaDark.addEventListener) {
+      mediaDark.addEventListener("change", () => {
+        if (pageBgMode === "auto") applyPageBg();
+      });
+    } else if (mediaDark && mediaDark.addListener) {
+      // 兼容老浏览器
+      mediaDark.addListener(() => {
+        if (pageBgMode === "auto") applyPageBg();
+      });
+    }
+
+    pageBgToggleBtn.addEventListener("click", () => {
+      const idx = pageBgModes.indexOf(pageBgMode);
+      pageBgMode = pageBgModes[(idx + 1) % pageBgModes.length];
+      localStorage.setItem(PAGE_BG_KEY, pageBgMode);
+      pageBgModeLabel.textContent = pageBgText[pageBgMode];
+      applyPageBg();
+      tick();
+    });
+
+    /* =========================
+       工具函数
+       ========================= */
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function parseHHMM(hhmm) {
+      const [h, m] = hhmm.split(":").map(x => Number(x));
+      return (h * 60 + m) % 1440;
+    }
+
+    function getLocalHMMinutes(date, timeZone) {
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone,
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }).formatToParts(date);
+
+      const h = Number(parts.find(p => p.type === "hour")?.value ?? "0");
+      const m = Number(parts.find(p => p.type === "minute")?.value ?? "0");
+      return (h * 60 + m) % 1440;
+    }
+
+    function fmtClockFull(date, timeZone) {
+      // HH:MM:SS
+      return new Intl.DateTimeFormat("zh-CN", {
+        timeZone,
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        hour12: false
+      }).format(date);
+    }
+
+    function fmtDateFull(date, timeZone) {
+      // YYYY年MM月DD日
+      const parts = new Intl.DateTimeFormat("zh-CN", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(date);
+
+      const yy = parts.find(p => p.type === "year")?.value ?? "----";
+      const mm = parts.find(p => p.type === "month")?.value ?? "--";
+      const dd = parts.find(p => p.type === "day")?.value ?? "--";
+      return `${yy}年${mm}月${dd}日`;
+    }
+
+    function fmtClockShort(date, timeZone) {
+      // 对照行：HH:MM（更紧凑）
+      return new Intl.DateTimeFormat("zh-CN", {
+        timeZone,
+        hour: "2-digit", minute: "2-digit",
+        hour12: false
+      }).format(date);
+    }
+
+    function fmtMD(date, timeZone) {
+      const parts = new Intl.DateTimeFormat("zh-CN", {
+        timeZone,
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(date);
+
+      const mm = parts.find(p => p.type === "month")?.value ?? "--";
+      const dd = parts.find(p => p.type === "day")?.value ?? "--";
+      return `${mm}月${dd}日`;
+    }
+
+    function isSleeping(localMin, sleepMin, wakeMin) {
+      // 区间 [sleep, wake)，允许跨午夜
+      if (sleepMin === wakeMin) return false;
+      if (sleepMin < wakeMin) return (localMin >= sleepMin) && (localMin < wakeMin);
+      return (localMin >= sleepMin) || (localMin < wakeMin);
+    }
+
+    function isDaytime(localMin) {
+      return (localMin >= 360) && (localMin < 1080); // 06:00–18:00
+    }
+
+    function circularDiffMin(a, b) {
+      const d = Math.abs(a - b) % 1440;
+      return Math.min(d, 1440 - d);
+    }
+
+    function minutesUntil(localMin, targetMin) {
+      return (targetMin - localMin + 1440) % 1440;
+    }
+
+    function fmtDeltaMinutes(deltaMin) {
+      const h = Math.floor(deltaMin / 60);
+      const m = deltaMin % 60;
+      if (h <= 0) return `${m}分钟`;
+      if (m === 0) return `${h}小时`;
+      return `${h}小时${m}分钟`;
+    }
+
+    /* =========================
+       主状态（四档）判定
+       - 入睡中：距 sleep <= 60
+       - 起床中：距 wake  <= 60
+       - 否则：已入睡 / 已起床
+       注：入睡中/起床中 优先（橙色）
+       ========================= */
+    function getMainStatus(localMin, sleepMin, wakeMin) {
+      const toSleep = circularDiffMin(localMin, sleepMin);
+      const toWake  = circularDiffMin(localMin, wakeMin);
+
+      if (toSleep <= 60 && toSleep <= toWake) {
+        return { cls: "trans", text: "入睡中" };
+      }
+      if (toWake <= 60 && toWake < toSleep) {
+        return { cls: "trans", text: "起床中" };
+      }
+
+      const sleeping = isSleeping(localMin, sleepMin, wakeMin);
+      return sleeping
+        ? { cls: "sleep", text: "已入睡" }
+        : { cls: "awake", text: "已起床" };
+    }
+
+    /* =========================
+       卡片背景（按当地时间）
+       - twilight：sleep±1h 或 wake±1h
+       - day/night：按 6-18
+       ========================= */
+    function getCardBgClass(localMin, sleepMin, wakeMin) {
+      const tw = (circularDiffMin(localMin, sleepMin) <= 60) || (circularDiffMin(localMin, wakeMin) <= 60);
+      if (tw) return "twilight";
+      return isDaytime(localMin) ? "day" : "night";
+    }
+
+    /* =========================
+       构建 DOM
+       ========================= */
+    function build() {
+      cardsEl.innerHTML = "";
+      for (const p of people) {
+        const card = document.createElement("section");
+        card.className = "card";
+        card.id = `card-${p.id}`;
+
+        card.innerHTML = `
+          <div class="top">
+            <div class="who">
+              <div class="nameLine">
+                <div class="name">${escapeHtml(p.name)}</div>
+                <div class="statusPill" data-status="${p.id}">计算中</div>
+              </div>
+              <div class="loc">${escapeHtml(p.region)} · <span style="opacity:.9">${escapeHtml(p.timeZone)}</span></div>
+
+              <div class="meta">
+                <div class="miniPill">作息：睡 ${escapeHtml(p.sleep)} / 起 ${escapeHtml(p.wake)}</div>
+                <div class="miniPill" data-countdown="${p.id}">倒计时：--</div>
+              </div>
+            </div>
+
+            <div class="timeBox">
+              <div class="clock" data-clock="${p.id}">--:--:--</div>
+              <div class="date" data-date="${p.id}">----年--月--日</div>
+            </div>
+          </div>
+
+          <div class="hint">同一时刻，其他人那里是：</div>
+          <div class="grid" data-grid="${p.id}"></div>
+        `;
+
+        cardsEl.appendChild(card);
+      }
+    }
+
+    function tick() {
+      const now = new Date();
+
+      // 页脚状态（保留紧凑显示）
+      const localShort = new Intl.DateTimeFormat("zh-CN", {
+        month:"2-digit", day:"2-digit",
+        hour:"2-digit", minute:"2-digit",
+        hour12:false
+      }).format(now);
+
+      const utcShort = new Intl.DateTimeFormat("zh-CN", {
+        timeZone:"UTC",
+        month:"2-digit", day:"2-digit",
+        hour:"2-digit", minute:"2-digit",
+        hour12:false
+      }).format(now);
+
+      statusLineEl.textContent = `本机：${localShort} ｜ UTC：${utcShort} ｜ 刷新：1s`;
+
+      for (const p of people) {
+        const card = document.getElementById(`card-${p.id}`);
+        if (!card) continue;
+
+        // 右上角完整时间/日期
+        const clockEl = document.querySelector(`[data-clock="${p.id}"]`);
+        const dateEl  = document.querySelector(`[data-date="${p.id}"]`);
+        if (clockEl) clockEl.textContent = fmtClockFull(now, p.timeZone);
+        if (dateEl)  dateEl.textContent  = fmtDateFull(now, p.timeZone);
+
+        // 计算本地分钟
+        const localMin = getLocalHMMinutes(now, p.timeZone);
+        const sleepMin = parseHHMM(p.sleep);
+        const wakeMin  = parseHHMM(p.wake);
+
+        // 卡片背景
+        const bgCls = getCardBgClass(localMin, sleepMin, wakeMin);
+        card.classList.remove("day","night","twilight");
+        card.classList.add(bgCls);
+
+        // 主状态 pill（四档）
+        const st = getMainStatus(localMin, sleepMin, wakeMin);
+        const stEl = document.querySelector(`[data-status="${p.id}"]`);
+        if (stEl) {
+          stEl.classList.remove("awake","sleep","trans");
+          stEl.classList.add(st.cls);
+          stEl.textContent = st.text;
+        }
+
+        // 小 pill：倒计时（睡觉中/醒着时分别指向起床/入睡）
+        const sleeping = isSleeping(localMin, sleepMin, wakeMin);
+        const target = sleeping ? wakeMin : sleepMin;
+        const delta = minutesUntil(localMin, target);
+        const cdEl = document.querySelector(`[data-countdown="${p.id}"]`);
+        if (cdEl) {
+          cdEl.innerHTML = `倒计时：距离${sleeping ? "起床" : "睡觉"} ${fmtDeltaMinutes(delta)}`;
+        }
+
+        // 对照表（紧凑：HH:MM + MM月DD日）
+        const grid = document.querySelector(`[data-grid="${p.id}"]`);
+        if (!grid) continue;
+        grid.innerHTML = "";
+
+        for (const other of people) {
+          if (other.id === p.id) continue;
+
+          const row = document.createElement("div");
+          row.className = "row";
+          row.innerHTML = `
+            <div class="label">${escapeHtml(other.name)}（${escapeHtml(other.region)}）</div>
+            <div class="val">${fmtClockShort(now, other.timeZone)} · ${fmtMD(now, other.timeZone)}</div>
+          `;
+          grid.appendChild(row);
+        }
+      }
+    }
+
+    // 初始化
+    applyPageBg();
+    build();
+    tick();
+    setInterval(tick, 1000);
+  </script>
+</body>
+</html>
